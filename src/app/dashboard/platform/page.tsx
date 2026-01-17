@@ -8,8 +8,6 @@ import { ExternalLink, Lock, CheckCircle2 } from "lucide-react";
 import { USERS } from "@/lib/data";
 
 // Defaulting to Admin User for Demo Purposes
-// This ensures the "Platform Access" page shows the iframe by default
-// But we also permit override via URL for the User Flow demo
 const CURRENT_USER_EMAIL = "dazo192371@gmail.com";
 
 function PlatformContent() {
@@ -39,19 +37,19 @@ function PlatformContent() {
                                 <CheckCircle2 className="h-10 w-10 text-green-600" />
                             </div>
                         </div>
-                        <h3 className="text-2xl font-bold text-[var(--color-text-primary)] mb-2">Access Granted</h3>
+                        <h3 className="text-2xl font-bold text-[var(--color-text-primary)] mb-2">Service Active</h3>
                         <p className="text-[var(--color-text-muted)] mb-8">
-                            Your wallet and subscription are active. You can now access your white-label control panel.
+                            Please login to our service panel to manage your WhatsApp campaigns.
                         </p>
 
                         <Button asChild size="lg" className="w-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-lg h-12">
                             <a href="https://go.wapiflow.site" target="_blank" rel="noopener noreferrer">
                                 <ExternalLink className="mr-2 h-5 w-5" />
-                                Launch Control Panel
+                                Login to Services
                             </a>
                         </Button>
                         <p className="text-xs text-[var(--color-text-muted)] mt-4">
-                            Opens in a new secure window
+                            Redirects to Service Panel
                         </p>
                     </Card>
                 </div>
