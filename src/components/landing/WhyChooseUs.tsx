@@ -1,0 +1,52 @@
+import { CheckCircle2 } from "lucide-react";
+
+const reasons = [
+    "Meta Official API Ready",
+    "White-Label SaaS",
+    "Multi-Tenant Architecture",
+    "High Delivery Rates",
+    "Secure & Scalable",
+    "Built for Indian Businesses",
+];
+
+export function WhyChooseUs() {
+    return (
+        <section className="py-24">
+            <div className="container px-4 md:px-6">
+                <div className="grid gap-12 lg:grid-cols-2 items-center">
+                    <div className="space-y-8">
+                        <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-[var(--color-text-primary)]">
+                            Why Choose <span className="text-[var(--color-primary)]">Shree Shyam Tech</span>?
+                        </h2>
+                        <p className="text-[var(--color-text-muted)] text-lg">
+                            We provide a robust, enterprise-grade infrastructure that ensures your messages get delivered, every time. Built for scale and reliability.
+                        </p>
+                        <ul className="grid gap-4 sm:grid-cols-2">
+                            {reasons.map((reason, index) => (
+                                <li key={index} className="flex items-center space-x-3">
+                                    <CheckCircle2 className="w-5 h-5 text-[var(--color-primary)] shrink-0" />
+                                    <span className="text-[var(--color-text-primary)]">{reason}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                    <div className="relative">
+                        <div className="absolute inset-0 bg-[var(--color-primary)]/20 blur-[100px] rounded-full -z-10" />
+                        <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-8 shadow-2xl">
+                            {/* Abstract UI Representation */}
+                            <div className="space-y-4">
+                                <div className="h-4 w-1/3 bg-[var(--color-border)] rounded animate-pulse" />
+                                <div className="h-32 w-full bg-[var(--color-background)] rounded-lg border border-[var(--color-border)]" />
+                                <div className="grid grid-cols-3 gap-4">
+                                    <div className="h-20 bg-[var(--color-background)] rounded-lg border border-[var(--color-border)]" />
+                                    <div className="h-20 bg-[var(--color-background)] rounded-lg border border-[var(--color-border)]" />
+                                    <div className="h-20 bg-[var(--color-background)] rounded-lg border border-[var(--color-border)]" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    );
+}
