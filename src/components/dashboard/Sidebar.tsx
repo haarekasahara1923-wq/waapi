@@ -1,8 +1,8 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
-import { LayoutDashboard, MessageSquare, Bot, Radio, Send, Users, Inbox, CreditCard, Settings, Wallet, Lock } from "lucide-react";
+import { LayoutDashboard, MessageSquare, Bot, Radio, Send, Users, Inbox, CreditCard, Settings, Wallet, Lock, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function Sidebar() {
@@ -17,12 +17,12 @@ export function Sidebar() {
         { title: "Platform Access", icon: Radio, href: "/dashboard/platform" },
         // Only show Admin Panel if user is admin
         ...(userRole === 'admin' ? [{ title: "Admin Panel", icon: Lock, href: "/dashboard/admin" }] : []),
-        { title: "WhatsApp API", icon: MessageSquare, href: "/dashboard/api", active: false, badge: "Coming Soon" },
-        { title: "Automation", icon: Bot, href: "/dashboard/automation", active: false, badge: "Coming Soon" },
-        { title: "Broadcast", icon: Radio, href: "/dashboard/broadcast", active: false, badge: "Coming Soon" },
-        { title: "Campaigns", icon: Send, href: "/dashboard/campaigns", active: false, badge: "Coming Soon" },
-        { title: "Contacts", icon: Users, href: "/dashboard/contacts", active: false, badge: "Coming Soon" },
-        { title: "Inbox", icon: Inbox, href: "/dashboard/inbox", active: false, badge: "Coming Soon" },
+        { title: "WhatsApp API", icon: MessageSquare, href: "/dashboard/api", active: false },
+        { title: "Automation", icon: Bot, href: "/dashboard/automation", active: false },
+        { title: "Broadcast", icon: Radio, href: "/dashboard/broadcast", active: false },
+        { title: "Campaigns", icon: Send, href: "/dashboard/campaigns", active: false },
+        { title: "Contacts", icon: Users, href: "/dashboard/contacts", active: false },
+        { title: "Inbox", icon: Inbox, href: "/dashboard/inbox", active: false },
         { title: "Billing", icon: CreditCard, href: "/dashboard/billing" },
         { title: "Settings", icon: Settings, href: "/dashboard/settings" },
     ];
@@ -53,37 +53,19 @@ export function Sidebar() {
                         >
                             <item.icon className="h-4 w-4" />
                             {item.title}
-                            {item.badge && (
-                                <span className="ml-auto text-[10px] bg-[var(--color-border)] px-1.5 py-0.5 rounded text-[var(--color-text-muted)]">
-                                    {item.badge}
-                                </span>
-                            )}
                         </Link>
                     ))}
                 </nav>
             </div>
 
             <div className="border-t border-[var(--color-border)] p-4 shrink-0">
-                <Link
-                    href="/api/auth/signout"
+                <button
+                    onClick={() => signOut({ callbackUrl: "/login" })}
                     className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-red-500 hover:bg-red-50 transition-colors w-full"
                 >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="h-4 w-4"
-                    >
-                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                        <polyline points="16 17 21 12 16 7" />
-                        <line x1="21" x2="9" y1="12" y2="12" />
-                    </svg>
+                    <LogOut className="h-4 w-4" />
                     Logout
-                </Link>
+                </button>
             </div>
         </aside>
     );

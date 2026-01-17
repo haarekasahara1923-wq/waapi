@@ -3,27 +3,91 @@
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Wallet, AlertCircle, CheckCircle2, IndianRupee } from "lucide-react";
-import { USERS } from "@/lib/data";
-
-// In a real app, this would fetch from an API
-// For now, we mock the current user's state
-const CURRENT_USER_EMAIL = "rahul@example.com"; // Simulating a logged-in user standard view
-// To test Admin: Use login credentials provided earlier.
+import { Input } from "@/components/ui/input";
+import { Wallet, AlertCircle, CheckCircle2, IndianRupee, CreditCard, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export default function WalletPage() {
-    // Simulating User State locally for Demo
-    // In a real app, this comes from API/Global State
+    // In a real app, fetched from DB
     const [balance, setBalance] = useState(50);
     const [isLoading, setIsLoading] = useState(false);
+    const [customAmount, setCustomAmount] = useState("");
+    const router = useRouter();
 
-    const handleRecharge = (amount: number) => {
+    const handleRazorpayPayment = async (amount: number) => {
+        if (!amount || amount <= 0) {
+            toast.error("Please enter a valid amount");
+            return;
+        }
+
         setIsLoading(true);
-        // Simulate Razorpay/API delay
-        setTimeout(() => {
-            setBalance(prev => prev + amount);
+
+        try {
+            // 1. Create Order
+            const orderRes = await fetch("/api/razorpay/order", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ amount: amount })
+            });
+
+            if (!orderRes.ok) throw new Error("Failed to create order");
+
+            const orderData = await orderRes.json();
+
+            // 2. Open Razorpay
+            const options = {
+                key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+                amount: orderData.amount,
+                currency: orderData.currency,
+                name: "Shree Shyam Tech",
+                description: "Wallet Recharge",
+                order_id: orderData.id,
+                handler: async function (response: any) {
+                    try {
+                        // 3. Verify
+                        const verifyRes = await fetch("/api/razorpay/verify", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                razorpay_order_id: response.razorpay_order_id,
+                                razorpay_payment_id: response.razorpay_payment_id,
+                                razorpay_signature: response.razorpay_signature,
+                                type: "wallet_recharge",
+                                amount: amount
+                            })
+                        });
+
+                        if (verifyRes.ok) {
+                            toast.success(`Succesfully added ₹${amount} to wallet!`);
+                            setBalance(prev => prev + amount); // Optimistic update
+                            setCustomAmount("");
+                        } else {
+                            toast.error("Payment verification failed.");
+                        }
+                    } catch (error) {
+                        toast.error("Verification error.");
+                    }
+                },
+                prefill: {
+                    name: "User Name", // Should come from auth
+                    email: "user@example.com",
+                    contact: ""
+                },
+                theme: {
+                    color: "#10B981"
+                }
+            };
+
+            const rzp = new (window as any).Razorpay(options);
+            rzp.open();
+
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to initiate payment. Ensure Razorpay keys are set.");
+        } finally {
             setIsLoading(false);
-        }, 1500);
+        }
     };
 
     return (
@@ -43,7 +107,7 @@ export default function WalletPage() {
                     <CardContent>
                         <div className="text-2xl font-bold text-[var(--color-text-primary)]">₹ {balance}</div>
                         <p className={`text-xs ${balance < 200 ? "text-red-500 font-medium" : "text-[var(--color-text-muted)]"}`}>
-                            {balance < 200 ? "Low Balance" : "Active"}
+                            {balance < 200 ? "Low Balance (Min ₹200 needed)" : "Active"}
                         </p>
                     </CardContent>
                 </Card>
@@ -59,10 +123,10 @@ export default function WalletPage() {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold text-[var(--color-text-primary)]">
-                            {balance >= 200 ? "Active" : "Inactive"}
+                            {balance >= 200 ? "Active" : "Restricted"}
                         </div>
                         <p className="text-xs text-[var(--color-text-muted)]">
-                            {balance < 200 ? "Min. ₹200 required to start" : "Services running smoothly"}
+                            {balance < 200 ? "Recharge to unlock services" : "Services running smoothly"}
                         </p>
                     </CardContent>
                 </Card>
@@ -75,28 +139,42 @@ export default function WalletPage() {
                     <CardDescription>Recharge your wallet to continue using Meta services.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="flex flex-col gap-4 max-w-md">
-                        <div className="grid grid-cols-3 gap-2">
+                    <div className="flex flex-col gap-6 max-w-md">
+                        <div className="grid grid-cols-3 gap-3">
                             {[200, 500, 1000].map(amount => (
                                 <Button
                                     key={amount}
                                     variant="outline"
                                     className="border-[var(--color-border)] hover:bg-[var(--color-primary)] hover:text-white"
-                                    onClick={() => handleRecharge(amount)}
+                                    onClick={() => handleRazorpayPayment(amount)}
                                     disabled={isLoading}
                                 >
                                     ₹ {amount}
                                 </Button>
                             ))}
                         </div>
-                        <div className="flex gap-2">
-                            <Button
-                                className="w-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white"
-                                onClick={() => handleRecharge(100)} // Default action
-                                disabled={isLoading}
-                            >
-                                {isLoading ? "Processing..." : <><IndianRupee className="mr-2 h-4 w-4" /> Add Custom Amount</>}
-                            </Button>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-[var(--color-text-muted)]">Custom Amount</label>
+                            <div className="flex gap-2">
+                                <div className="relative flex-1">
+                                    <IndianRupee className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--color-text-muted)]" />
+                                    <Input
+                                        type="number"
+                                        placeholder="Enter amount"
+                                        className="pl-8"
+                                        value={customAmount}
+                                        onChange={(e) => setCustomAmount(e.target.value)}
+                                        disabled={isLoading}
+                                    />
+                                </div>
+                                <Button
+                                    className="bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white"
+                                    onClick={() => handleRazorpayPayment(Number(customAmount))}
+                                    disabled={isLoading || !customAmount}
+                                >
+                                    {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Pay Now"}
+                                </Button>
+                            </div>
                         </div>
                     </div>
                 </CardContent>
@@ -109,7 +187,7 @@ export default function WalletPage() {
                         <p className="text-sm text-green-700">Your wallet has sufficient funds to access the platform.</p>
                     </div>
                     <Button asChild className="bg-green-600 hover:bg-green-700 text-white">
-                        <a href="/dashboard/platform?demo_access=true">Launch Platform</a>
+                        <a href="/dashboard/platform">Launch Platform</a>
                     </Button>
                 </div>
             )}

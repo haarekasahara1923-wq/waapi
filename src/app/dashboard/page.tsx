@@ -17,8 +17,8 @@ export default function DashboardPage() {
                         <Send className="h-4 w-4 text-[var(--color-primary)]" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold text-[var(--color-text-primary)]">12,345</div>
-                        <p className="text-xs text-[var(--color-text-muted)]">+20.1% from last month</p>
+                        <div className="text-2xl font-bold text-[var(--color-text-primary)]">0</div>
+                        <p className="text-xs text-[var(--color-text-muted)]">No data available</p>
                     </CardContent>
                 </Card>
                 <Card className="bg-[var(--color-surface)] border-[var(--color-border)]">
@@ -27,8 +27,8 @@ export default function DashboardPage() {
                         <Activity className="h-4 w-4 text-[var(--color-primary)]" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold text-[var(--color-text-primary)]">24</div>
-                        <p className="text-xs text-[var(--color-text-muted)]">+4 new this week</p>
+                        <div className="text-2xl font-bold text-[var(--color-text-primary)]">0</div>
+                        <p className="text-xs text-[var(--color-text-muted)]">Start a new campaign</p>
                     </CardContent>
                 </Card>
                 <Card className="bg-[var(--color-surface)] border-[var(--color-border)]">
@@ -37,8 +37,8 @@ export default function DashboardPage() {
                         <MessageSquare className="h-4 w-4 text-[var(--color-primary)]" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold text-[var(--color-text-primary)]">3</div>
-                        <p className="text-xs text-[var(--color-text-muted)]">All active</p>
+                        <div className="text-2xl font-bold text-[var(--color-text-primary)]">0</div>
+                        <p className="text-xs text-[var(--color-text-muted)]">Connect a number</p>
                     </CardContent>
                 </Card>
                 <Card className="bg-[var(--color-surface)] border-[var(--color-border)]">
@@ -47,8 +47,8 @@ export default function DashboardPage() {
                         <Users className="h-4 w-4 text-[var(--color-primary)]" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold text-[var(--color-text-primary)]">Premium</div>
-                        <p className="text-xs text-[var(--color-text-muted)]">Expires in 230 days</p>
+                        <div className="text-2xl font-bold text-[var(--color-text-primary)]">Free</div>
+                        <p className="text-xs text-[var(--color-text-muted)]">Upgrade to Premium</p>
                     </CardContent>
                 </Card>
             </div>

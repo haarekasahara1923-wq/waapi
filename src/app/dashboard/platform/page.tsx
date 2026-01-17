@@ -1,21 +1,31 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ExternalLink, Lock, CheckCircle2 } from "lucide-react";
 import { USERS } from "@/lib/data";
+import { toast } from "sonner";
 
 // Defaulting to Admin User for Demo Purposes
 const CURRENT_USER_EMAIL = "dazo192371@gmail.com";
 
 function PlatformContent() {
+    const router = useRouter();
     const searchParams = useSearchParams();
     const demoAccess = searchParams.get('demo_access') === 'true';
 
     // We check both the hardcoded user state AND the demo override
     const [user, setUser] = useState(USERS.find(u => u.email === CURRENT_USER_EMAIL)!);
+
+    useEffect(() => {
+        // Redirect if wallet balance is low and not admin/demo
+        if (!demoAccess && user.role !== 'admin' && user.walletBalance < 200) {
+            toast.error("Insufficient wallet balance. Minimum ₹200 required.");
+            router.push("/dashboard/wallet");
+        }
+    }, [user, demoAccess, router]);
 
     // Allow logic: Admin OR (Balance > 200 & Sub Active & Not Blocked) OR Demo Override
     const hasAccess = (user.role === 'admin') ||
