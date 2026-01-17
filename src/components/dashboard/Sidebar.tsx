@@ -1,9 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { LayoutDashboard, MessageSquare, Bot, Radio, Send, Users, Inbox, CreditCard, Settings, ChevronLeft } from "lucide-react";
+import { LayoutDashboard, MessageSquare, Bot, Radio, Send, Users, Inbox, CreditCard, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { usePathname } from "next/navigation"; // Note: This will need 'use client'
 
 const menuItems = [
     { title: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },

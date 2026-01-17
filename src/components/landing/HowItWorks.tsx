@@ -1,5 +1,4 @@
-import { UserPlus, CheckCheck, CreditCard, Rocket } from "lucide-react";
-// Assuming Rocket exists. If not, I'll use Send.
+// Unused icons removed
 
 const steps = [
     { step: "01", title: "Signup", description: "Create your account in seconds." },

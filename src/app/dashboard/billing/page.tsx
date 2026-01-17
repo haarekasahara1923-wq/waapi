@@ -57,6 +57,7 @@ export default function BillingPage() {
                 name: "Shree Shyam Tech",
                 description: `Subscription for ${planName} Plan`,
                 order_id: order.id,
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 handler: async function (response: any) {
                     const verifyRes = await fetch('/api/razorpay/verify', {
                         method: 'POST',
@@ -80,8 +81,10 @@ export default function BillingPage() {
                 }
             };
 
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const rzp1 = new (window as any).Razorpay(options);
             rzp1.open();
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             rzp1.on('payment.failed', function (response: any) {
                 alert("Payment Failed: " + response.error.description);
             });

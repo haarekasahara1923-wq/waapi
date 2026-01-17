@@ -1,6 +1,6 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { prisma } from "@/lib/prisma";
+// import { prisma } from "@/lib/prisma";
 
 export const authOptions: NextAuthOptions = {
     providers: [
@@ -40,7 +40,7 @@ export const authOptions: NextAuthOptions = {
         signIn: "/login",
     },
     callbacks: {
-        async session({ session, token }) {
+        async session({ session }) {
             if (session?.user) {
                 // session.user.id = token.sub; // invalid type without augmentation
             }
