@@ -36,8 +36,17 @@ export default function WalletPage() {
             const orderData = await orderRes.json();
 
             // 2. Open Razorpay
+            const key = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
+
+            if (!key) {
+                toast.error("Configuration Error: Payment Key Missing");
+                console.error("Missing NEXT_PUBLIC_RAZORPAY_KEY_ID");
+                setIsLoading(false);
+                return;
+            }
+
             const options = {
-                key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+                key: key,
                 amount: orderData.amount,
                 currency: orderData.currency,
                 name: "Shree Shyam Tech",

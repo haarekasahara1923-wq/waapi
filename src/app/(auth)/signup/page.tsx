@@ -73,8 +73,17 @@ export default function SignupPage() {
             if (!orderRes.ok) throw new Error(orderData.error);
 
             // 2. Open Razorpay
+            const key = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
+
+            if (!key) {
+                toast.error("Configuration Error: Payment Key Missing");
+                console.error("Missing NEXT_PUBLIC_RAZORPAY_KEY_ID");
+                setIsLoading(false);
+                return;
+            }
+
             const options = {
-                key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID, // You need to ensure this is available in client
+                key: key,
                 amount: orderData.amount,
                 currency: orderData.currency,
                 name: "Shree Shyam Tech",
