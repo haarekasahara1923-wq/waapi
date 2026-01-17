@@ -11,6 +11,12 @@ model User {
   name          String?
   email         String    @unique
   passwordHash  String
+  
+  // New Fields for Platform/Wallet
+  role          String    @default("user") // "admin" | "user"
+  walletBalance Float     @default(0.0)
+  isBlocked     Boolean   @default(false)
+  
   createdAt     DateTime  @default(now())
   
   subscription  Subscription?
