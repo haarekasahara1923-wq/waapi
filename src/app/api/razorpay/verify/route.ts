@@ -5,7 +5,7 @@ import { addDays } from 'date-fns';
 
 export async function POST(request: Request) {
     try {
-        const { razorpay_order_id, razorpay_payment_id, razorpay_signature, email, plan } = await request.json();
+        const { razorpay_order_id, razorpay_payment_id, razorpay_signature, email, plan, type, amount } = await request.json();
 
         const body = razorpay_order_id + "|" + razorpay_payment_id;
 
@@ -23,38 +23,51 @@ export async function POST(request: Request) {
             );
         }
 
-        // Logic to update user subscription
         if (email) {
             const user = await prisma.user.findUnique({
                 where: { email },
             });
 
             if (user) {
-                const startDate = new Date();
-                const endDate = plan === 'yearly' ? addDays(startDate, 365) : addDays(startDate, 30);
+                // Wallet Recharge Logic
+                if (type === 'wallet_recharge' && amount) {
+                    await prisma.user.update({
+                        where: { id: user.id },
+                        data: {
+                            walletBalance: { increment: Number(amount) }
+                        }
+                    });
+                    return NextResponse.json({ success: true, message: "Wallet recharged successfully" });
+                }
 
-                await prisma.subscription.upsert({
-                    where: { userId: user.id },
-                    update: {
-                        planType: plan.toUpperCase(),
-                        status: 'ACTIVE',
-                        paymentId: razorpay_payment_id,
-                        orderId: razorpay_order_id,
-                        startDate: startDate,
-                        endDate: endDate,
-                    },
-                    create: {
-                        userId: user.id,
-                        planType: plan.toUpperCase(),
-                        status: 'ACTIVE',
-                        paymentId: razorpay_payment_id,
-                        orderId: razorpay_order_id,
-                        startDate: startDate,
-                        endDate: endDate,
-                    }
-                });
+                // Subscription Logic (Default if type is not wallet_recharge or if plan is present)
+                if (plan) {
+                    const startDate = new Date();
+                    const endDate = plan === 'yearly' ? addDays(startDate, 365) : addDays(startDate, 30);
 
-                return NextResponse.json({ success: true });
+                    await prisma.subscription.upsert({
+                        where: { userId: user.id },
+                        update: {
+                            planType: plan.toUpperCase(),
+                            status: 'ACTIVE',
+                            paymentId: razorpay_payment_id,
+                            orderId: razorpay_order_id,
+                            startDate: startDate,
+                            endDate: endDate,
+                        },
+                        create: {
+                            userId: user.id,
+                            planType: plan.toUpperCase(),
+                            status: 'ACTIVE',
+                            paymentId: razorpay_payment_id,
+                            orderId: razorpay_order_id,
+                            startDate: startDate,
+                            endDate: endDate,
+                        }
+                    });
+
+                    return NextResponse.json({ success: true, message: "Subscription activated" });
+                }
             }
         }
 

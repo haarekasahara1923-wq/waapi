@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,11 +9,26 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
 export default function WalletPage() {
-    // In a real app, fetched from DB
-    const [balance, setBalance] = useState(50);
+    // Fetched from DB
+    const [balance, setBalance] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
     const [customAmount, setCustomAmount] = useState("");
     const router = useRouter();
+
+    useEffect(() => {
+        const fetchBalance = async () => {
+            try {
+                const res = await fetch("/api/user/balance");
+                const data = await res.json();
+                if (data.balance !== undefined) {
+                    setBalance(data.balance);
+                }
+            } catch (error) {
+                console.error("Failed to fetch balance");
+            }
+        };
+        fetchBalance();
+    }, []);
 
     const handleRazorpayPayment = async (amount: number) => {
         if (!amount || amount <= 0) {

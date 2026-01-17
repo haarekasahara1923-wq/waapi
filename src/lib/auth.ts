@@ -51,7 +51,7 @@ export const authOptions: NextAuthOptions = {
                     name: user.name,
                     email: user.email,
                     role: user.role,
-                    subscription: user.subscription?.status || user.subscriptionStatus || "inactive",
+                    subscription: user.subscription?.status || "inactive",
                     // Pass wallet balance via session if needed, but usually better to fetch fresh
                 };
             }
