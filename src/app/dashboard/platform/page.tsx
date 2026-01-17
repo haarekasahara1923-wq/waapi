@@ -32,18 +32,28 @@ function PlatformContent() {
             </div>
 
             {hasAccess ? (
-                <div className="flex-1 border rounded-lg overflow-hidden relative bg-white">
-                    {/* Overlay Warning (Simulated for this environment if iframe blocked) */}
-                    <div className="absolute top-0 w-full bg-green-500/10 p-2 text-xs text-center text-green-700 font-medium z-10 flex items-center justify-center gap-2">
-                        <CheckCircle2 className="h-3 w-3" />
-                        Connected securely to go.wapiflow.site
-                    </div>
-                    {/* Iframe */}
-                    <iframe
-                        src="https://go.wapiflow.site"
-                        className="w-full h-full border-0"
-                        title="WapiFlow Platform"
-                    />
+                <div className="flex-1 flex items-center justify-center">
+                    <Card className="max-w-md w-full text-center p-8 border-[var(--color-border)] shadow-lg">
+                        <div className="flex justify-center mb-6">
+                            <div className="p-4 bg-green-100 rounded-full animate-pulse">
+                                <CheckCircle2 className="h-10 w-10 text-green-600" />
+                            </div>
+                        </div>
+                        <h3 className="text-2xl font-bold text-[var(--color-text-primary)] mb-2">Access Granted</h3>
+                        <p className="text-[var(--color-text-muted)] mb-8">
+                            Your wallet and subscription are active. You can now access your white-label control panel.
+                        </p>
+
+                        <Button asChild size="lg" className="w-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-lg h-12">
+                            <a href="https://go.wapiflow.site" target="_blank" rel="noopener noreferrer">
+                                <ExternalLink className="mr-2 h-5 w-5" />
+                                Launch Control Panel
+                            </a>
+                        </Button>
+                        <p className="text-xs text-[var(--color-text-muted)] mt-4">
+                            Opens in a new secure window
+                        </p>
+                    </Card>
                 </div>
             ) : (
                 <div className="flex-1 flex items-center justify-center">
