@@ -1,3 +1,5 @@
+"use client";
+
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { LayoutDashboard, MessageSquare, Bot, Radio, Send, Users, Inbox, CreditCard, Settings, Wallet, Lock } from "lucide-react";
