@@ -15,7 +15,7 @@ type User = {
     role: "user" | "admin";
     walletBalance: number;
     isBlocked: boolean;
-    subscriptionStatus: "active" | "inactive";
+    subscriptionStatus: string; // Allow flexible status from DB
 };
 
 export default function AdminDashboard() {
@@ -53,28 +53,56 @@ export default function AdminDashboard() {
     );
 
     // Function to simulate blocking/unblocking (Call API here in future)
-    const toggleBlockUser = (userId: string) => {
-        setUsers(prev => prev.map(u => {
-            if (u.id === userId) return { ...u, isBlocked: !u.isBlocked };
-            return u;
-        }));
+    const toggleBlockUser = async (userId: string, currentStatus: boolean) => {
+        try {
+            const res = await fetch("/api/admin/users/update", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userId, action: 'block', value: !currentStatus })
+            });
+            if (res.ok) {
+                setUsers(prev => prev.map(u => {
+                    if (u.id === userId) return { ...u, isBlocked: !currentStatus };
+                    return u;
+                }));
+            }
+        } catch (e) {
+            console.error("Failed to update block status");
+        }
     };
 
-    // Function to simulate marking as paid
-    const markAsPaid = (userId: string) => {
-        setUsers(prev => prev.map(u => {
-            if (u.id === userId) return { ...u, subscriptionStatus: 'active' };
-            return u;
-        }));
+    // Function to toggle subscription status
+    const toggleSubscription = async (userId: string, currentStatus: string) => {
+        const newStatus = currentStatus === 'active' || currentStatus === 'ACTIVE'; // check for true
+        // We want to flip it. So if active(true), we send false.
+
+        try {
+            const res = await fetch("/api/admin/users/update", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userId, action: 'subscription', value: !newStatus })
+            });
+
+            if (res.ok) {
+                setUsers(prev => prev.map(u => {
+                    if (u.id === userId) return { ...u, subscriptionStatus: !newStatus ? 'active' : 'inactive' };
+                    return u;
+                }));
+            }
+        } catch (e) {
+            console.error("Failed to update subscription");
+        }
     };
 
     return (
         <div className="space-y-8">
+            {/* ... header ... */}
             <div>
                 <h2 className="text-3xl font-bold tracking-tight text-[var(--color-text-primary)]">Admin Panel</h2>
                 <p className="text-[var(--color-text-muted)]">Manage users, access, and view revenue reports.</p>
             </div>
 
+            {/* ... stats cards ... (unchanged) */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <Card className="bg-[var(--color-surface)] border-[var(--color-border)]">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -92,7 +120,7 @@ export default function AdminDashboard() {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold text-[var(--color-text-primary)]">
-                            {users.filter(u => u.subscriptionStatus === 'active').length}
+                            {users.filter(u => u.subscriptionStatus === 'active' || u.subscriptionStatus === 'ACTIVE').length}
                         </div>
                     </CardContent>
                 </Card>
@@ -129,7 +157,7 @@ export default function AdminDashboard() {
                             </thead>
                             <tbody>
                                 {filteredUsers.length === 0 ? (
-                                    <tr><td colSpan={6} className="p-4 text-center text-[var(--color-text-muted)]">No users found. (Real Data mode active)</td></tr>
+                                    <tr><td colSpan={6} className="p-4 text-center text-[var(--color-text-muted)]">No users found.</td></tr>
                                 ) : (
                                     filteredUsers.map((user) => (
                                         <tr key={user.id} className="border-t border-[var(--color-border)] hover:bg-[var(--color-background)]">
@@ -138,8 +166,11 @@ export default function AdminDashboard() {
                                             <td className="p-3">₹{user.walletBalance}</td>
                                             <td className="p-3 capitalize">{user.role}</td>
                                             <td className="p-3">
-                                                <Badge variant={user.subscriptionStatus === 'active' ? "success" : "secondary"} className={user.subscriptionStatus === 'active' ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}>
-                                                    {user.subscriptionStatus}
+                                                <Badge
+                                                    variant={user.subscriptionStatus === 'active' || user.subscriptionStatus === 'ACTIVE' ? "success" : "secondary"}
+                                                    className={user.subscriptionStatus === 'active' || user.subscriptionStatus === 'ACTIVE' ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}
+                                                >
+                                                    {user.subscriptionStatus || 'inactive'}
                                                 </Badge>
                                                 {user.isBlocked && <Badge variant="destructive" className="ml-2 bg-red-100 text-red-800">Blocked</Badge>}
                                             </td>
@@ -147,22 +178,22 @@ export default function AdminDashboard() {
                                                 <Button
                                                     size="sm"
                                                     variant="outline"
-                                                    onClick={() => toggleBlockUser(user.id)}
+                                                    onClick={() => toggleBlockUser(user.id, user.isBlocked)}
                                                     className={user.isBlocked ? "text-green-600 hover:text-green-700" : "text-red-500 hover:text-red-600"}
+                                                    title={user.isBlocked ? "Unblock User" : "Block User"}
                                                 >
                                                     {user.isBlocked ? <Unlock className="h-4 w-4" /> : <Ban className="h-4 w-4" />}
                                                 </Button>
-                                                {user.subscriptionStatus !== 'active' && (
-                                                    <Button
-                                                        size="sm"
-                                                        variant="outline"
-                                                        onClick={() => markAsPaid(user.id)}
-                                                        className="text-blue-600 hover:text-blue-700"
-                                                        title="Mark Subscription Paid"
-                                                    >
-                                                        <CheckCircle2 className="h-4 w-4" />
-                                                    </Button>
-                                                )}
+
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    onClick={() => toggleSubscription(user.id, user.subscriptionStatus)}
+                                                    className={user.subscriptionStatus === 'active' || user.subscriptionStatus === 'ACTIVE' ? "text-orange-600 hover:text-orange-700" : "text-blue-600 hover:text-blue-700"}
+                                                    title={user.subscriptionStatus === 'active' || user.subscriptionStatus === 'ACTIVE' ? "Mark Unpaid" : "Mark Paid"}
+                                                >
+                                                    {user.subscriptionStatus === 'active' || user.subscriptionStatus === 'ACTIVE' ? <AlertCircle className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4" />}
+                                                </Button>
                                             </td>
                                         </tr>
                                     ))
