@@ -1,7 +1,27 @@
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { Header } from "@/components/dashboard/Header";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+    const session = await getServerSession(authOptions);
+
+    if (!session) {
+        redirect("/login");
+    }
+
+    const user = session.user as any;
+
+    // Admin bypasses subscription check
+    if (user.role !== 'admin') {
+        const subscriptionStatus = user.subscription;
+        // If subscription is not active, redirect to subscription page
+        if (subscriptionStatus !== 'ACTIVE' && subscriptionStatus !== 'active') {
+            redirect("/subscription");
+        }
+    }
+
     return (
         <div className="flex min-h-screen bg-[var(--color-surface)]">
             <Sidebar />
