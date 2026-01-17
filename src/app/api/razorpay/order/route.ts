@@ -3,10 +3,15 @@ import Razorpay from 'razorpay';
 
 // Initialize Razorpay
 // NOTE: ENV variables must be set in .env or Vercel dashboard
-const razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID || '',
-    key_secret: process.env.RAZORPAY_SECRET || '',
-});
+// Initialize outside but don't error immediately if building
+// NOTE: ENV variables must be set in .env or Vercel dashboard
+let razorpay: Razorpay;
+if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_SECRET) {
+    razorpay = new Razorpay({
+        key_id: process.env.RAZORPAY_KEY_ID,
+        key_secret: process.env.RAZORPAY_SECRET,
+    });
+}
 
 export async function POST(request: Request) {
     try {
@@ -22,6 +27,13 @@ export async function POST(request: Request) {
             currency,
             receipt: `receipt_${Date.now()}`,
         };
+
+        if (!razorpay) {
+            razorpay = new Razorpay({
+                key_id: process.env.RAZORPAY_KEY_ID || '',
+                key_secret: process.env.RAZORPAY_SECRET || '',
+            });
+        }
 
         const order = await razorpay.orders.create(options);
 
