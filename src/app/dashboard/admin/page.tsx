@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -23,16 +23,33 @@ export default function AdminDashboard() {
     // We start with an empty array or initial fetch
     const [users, setUsers] = useState<User[]>([]);
     const [searchTerm, setSearchTerm] = useState("");
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchUsers = async () => {
+            try {
+                const res = await fetch("/api/admin/users");
+                const data = await res.json();
+                if (data.users) {
+                    setUsers(data.users);
+                }
+            } catch (e) {
+                console.error("Failed to fetch users");
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchUsers();
+    }, []);
 
     // Placeholder for Revenue Data
     const revenueData = [
-        { id: 1, user: "Sample User 1", type: "Subscription", amount: 499, date: "2024-03-01" },
-        { id: 2, user: "Sample User 2", type: "Wallet Recharge", amount: 1000, date: "2024-03-02" },
+        { id: 1, user: "Real Data Coming Soon", type: "Subscription", amount: 0, date: "2024-03-01" },
     ];
 
     const filteredUsers = users.filter(user =>
-        user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchTerm.toLowerCase())
+        (user.name?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+        (user.email?.toLowerCase() || "").includes(searchTerm.toLowerCase())
     );
 
     // Function to simulate blocking/unblocking (Call API here in future)

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2, Check, Star } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { RazorpayLoader } from "@/components/RazorpayLoader";
 
 const PLANS = [
     {
@@ -96,9 +97,7 @@ export default function SubscriptionPage() {
 
                         if (verifyRes.ok && verifyData.success) {
                             toast.success("Subscription activated successfully!");
-                            // Force logic to refresh session or redirect
-                            // Since we updated DB, navigating to dashboard should be fine if dashboard checks DB or we reload session
-                            window.location.href = "/dashboard"; // Hard reload to ensure session updates if needed
+                            window.location.href = "/dashboard";
                         } else {
                             toast.error(verifyData.error || "Payment verification failed.");
                         }
@@ -130,6 +129,7 @@ export default function SubscriptionPage() {
 
     return (
         <div className="min-h-screen flex items-center justify-center p-4 bg-[var(--color-background)]">
+            <RazorpayLoader />
             <div className="max-w-4xl w-full grid md:grid-cols-2 gap-8 items-center">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight text-[var(--color-text-primary)] mb-4">
