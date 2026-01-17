@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -7,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Wallet, AlertCircle, CheckCircle2, IndianRupee, CreditCard, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { RazorpayLoader } from "@/components/RazorpayLoader";
 
 export default function WalletPage() {
     // Fetched from DB
@@ -116,6 +118,7 @@ export default function WalletPage() {
 
     return (
         <div className="space-y-8">
+            <RazorpayLoader />
             <div>
                 <h2 className="text-3xl font-bold tracking-tight text-[var(--color-text-primary)]">Wallet & Usage</h2>
                 <p className="text-[var(--color-text-muted)]">Manage your wallet balance to access Meta services.</p>
