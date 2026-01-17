@@ -21,12 +21,25 @@ export const authOptions: NextAuthOptions = {
                 // const isValid = await bcrypt.compare(credentials.password, user.passwordHash);
 
                 // Mock User for demonstration
+                // Check for Admin/Bypass Credentials
+                if (credentials.email === "dazo192371@gmail.com" && credentials.password === "Nami@1971") {
+                    return {
+                        id: "admin-bypass",
+                        name: "Super Admin",
+                        email: credentials.email,
+                        image: null,
+                        role: "admin",
+                        subscription: "active" // Bypass Razorpay
+                    };
+                }
+
+                // Mock User for demonstration (others)
                 // Allow any login for now or specific demo user
                 const user = {
                     id: "1",
                     name: "Demo User",
                     email: credentials.email,
-                    image: null
+                    image: null,
                 };
 
                 return user;

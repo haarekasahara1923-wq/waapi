@@ -1,11 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { LayoutDashboard, MessageSquare, Bot, Radio, Send, Users, Inbox, CreditCard, Settings } from "lucide-react";
+import { LayoutDashboard, MessageSquare, Bot, Radio, Send, Users, Inbox, CreditCard, Settings, Wallet, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const menuItems = [
     { title: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
+    { title: "Wallet & Usage", icon: Wallet, href: "/dashboard/wallet" },
+    { title: "Platform Access", icon: Radio, href: "/dashboard/platform" },
+    { title: "Admin Panel", icon: Lock, href: "/dashboard/admin" }, // Ideally hidden for non-admins
     { title: "WhatsApp API", icon: MessageSquare, href: "/dashboard/api", active: false, badge: "Coming Soon" },
     { title: "Automation", icon: Bot, href: "/dashboard/automation", active: false, badge: "Coming Soon" },
     { title: "Broadcast", icon: Radio, href: "/dashboard/broadcast", active: false, badge: "Coming Soon" },
