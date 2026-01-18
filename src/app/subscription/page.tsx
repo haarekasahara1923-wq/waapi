@@ -61,6 +61,8 @@ export default function SubscriptionPage() {
 
         try {
             // 1. Create Order
+            console.log("Creating Razorpay order...");
+            toast.info("Creating order...");
             const orderRes = await fetch("/api/razorpay/order", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -68,21 +70,30 @@ export default function SubscriptionPage() {
             });
             const orderData = await orderRes.json();
 
-            if (!orderRes.ok) throw new Error(orderData.error);
+            if (!orderRes.ok) {
+                console.error("Order creation failed", orderData);
+                throw new Error(orderData.error || "Order creation failed");
+            }
+            console.log("Order created:", orderData);
+            toast.success("Order created!");
 
             // 2. Open Razorpay
             const key = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
             if (!key) {
-                toast.error("Configuration Error: Payment Key Missing");
+                toast.error("Configuration Error: Payment Key Missing (Client)");
                 setIsLoading(false);
                 return;
             }
 
             if (typeof (window as any).Razorpay === 'undefined') {
-                toast.error("Razorpay SDK failed to load. Please refresh the page.");
+                console.error("Razorpay SDK not loaded");
+                toast.error("Razorpay SDK failed to load. Please refresh.");
                 setIsLoading(false);
                 return;
             }
+
+            console.log("Initializing Razorpay with key:", key);
+            toast.info("Opening Payment Gateway...");
 
             const options = {
                 key: key,
@@ -151,7 +162,6 @@ export default function SubscriptionPage() {
 
     return (
         <div className="min-h-screen flex items-center justify-center p-4 bg-[var(--color-background)]">
-            <RazorpayLoader />
             <div className="max-w-4xl w-full grid md:grid-cols-2 gap-8 items-center">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight text-[var(--color-text-primary)] mb-4">
