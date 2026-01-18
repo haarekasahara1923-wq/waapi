@@ -32,17 +32,12 @@ export function WhyChooseUs() {
                     </div>
                     <div className="relative">
                         <div className="absolute inset-0 bg-[var(--color-primary)]/20 blur-[100px] rounded-full -z-10" />
-                        <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-8 shadow-2xl">
-                            {/* Abstract UI Representation */}
-                            <div className="space-y-4">
-                                <div className="h-4 w-1/3 bg-[var(--color-border)] rounded animate-pulse" />
-                                <div className="h-32 w-full bg-[var(--color-background)] rounded-lg border border-[var(--color-border)]" />
-                                <div className="grid grid-cols-3 gap-4">
-                                    <div className="h-20 bg-[var(--color-background)] rounded-lg border border-[var(--color-border)]" />
-                                    <div className="h-20 bg-[var(--color-background)] rounded-lg border border-[var(--color-border)]" />
-                                    <div className="h-20 bg-[var(--color-background)] rounded-lg border border-[var(--color-border)]" />
-                                </div>
-                            </div>
+                        <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-2 shadow-2xl overflow-hidden">
+                            <img
+                                src="/why-choose-us.png"
+                                alt="Shree Shyam Tech Dashboard"
+                                className="w-full h-auto rounded-xl object-cover"
+                            />
                         </div>
                     </div>
                 </div>

@@ -16,7 +16,7 @@ export function Hero() {
                     </p>
                     <div className="flex flex-col sm:flex-row justify-center gap-4">
                         <Link href="/signup">
-                            <Button size="lg" className="w-full sm:w-auto text-lg px-8 py-6 rounded-full bg-[var(--color-secondary)] hover:bg-[#1b5e20] text-white shadow-[0_0_20px_rgba(46,125,50,0.3)] hover:shadow-[0_0_30px_rgba(46,125,50,0.5)] transition-shadow">
+                            <Button size="lg" className="w-full sm:w-auto text-lg px-8 py-6 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white shadow-[0_0_20px_rgba(0,92,168,0.3)] hover:shadow-[0_0_30px_rgba(0,92,168,0.5)] transition-shadow">
                                 Get Started
                             </Button>
                         </Link>
