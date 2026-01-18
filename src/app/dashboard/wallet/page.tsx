@@ -136,9 +136,9 @@ export default function WalletPage() {
 
             rzp.open();
 
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
-            toast.error("Failed to initiate payment. Ensure Razorpay keys are set.");
+            toast.error(error.message || "Failed to initiate payment. Ensure Razorpay keys are set.");
         } finally {
             setIsLoading(false);
         }

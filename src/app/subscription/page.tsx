@@ -152,9 +152,9 @@ export default function SubscriptionPage() {
 
             rzp.open();
 
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
-            toast.error("Failed to initiate payment.");
+            toast.error(error.message || "Failed to initiate payment.");
         } finally {
             setIsLoading(false);
         }
