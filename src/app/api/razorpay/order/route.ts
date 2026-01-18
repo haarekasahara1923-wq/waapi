@@ -17,11 +17,7 @@ export async function POST(request: Request) {
     try {
         const { amount, currency = 'INR' } = await request.json();
 
-        // FALLBACK FOR VERCEL: If env vars are missing, use these hardcoded keys (Temporary Fix)
-        const key_id = process.env.RAZORPAY_KEY_ID || "rzp_live_RsbFKZwt1ZtSQF";
-        const key_secret = process.env.RAZORPAY_SECRET || "5ERk59shUraQto1EJ51we7aK";
-
-        if (!key_id || !key_secret) {
+        if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_SECRET) {
             console.error("Razorpay keys are missing.");
             return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
         }
@@ -34,8 +30,8 @@ export async function POST(request: Request) {
 
         if (!razorpay) {
             razorpay = new Razorpay({
-                key_id: key_id,
-                key_secret: key_secret,
+                key_id: process.env.RAZORPAY_KEY_ID || '',
+                key_secret: process.env.RAZORPAY_SECRET || '',
             });
         }
 
