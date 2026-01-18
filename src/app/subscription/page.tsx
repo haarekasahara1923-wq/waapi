@@ -61,8 +61,6 @@ export default function SubscriptionPage() {
 
         try {
             // 1. Create Order
-            console.log("Creating Razorpay order...");
-            toast.info("Creating order...");
             const orderRes = await fetch("/api/razorpay/order", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -74,8 +72,6 @@ export default function SubscriptionPage() {
                 console.error("Order creation failed", orderData);
                 throw new Error(orderData.error || "Order creation failed");
             }
-            console.log("Order created:", orderData);
-            toast.success("Order created!");
 
             // 2. Open Razorpay
             const key = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
@@ -91,9 +87,6 @@ export default function SubscriptionPage() {
                 setIsLoading(false);
                 return;
             }
-
-            console.log("Initializing Razorpay with key:", key);
-            toast.info("Opening Payment Gateway...");
 
             const options = {
                 key: key,
