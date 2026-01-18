@@ -5,6 +5,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Check, CreditCard, Loader2 } from "lucide-react";
 import { useState } from "react";
 import Script from "next/script";
+import { useSession } from "next-auth/react";
+import { toast } from "sonner"; // Assuming sonner is available since used in other files. Replaced alert with toast for consistency.
 
 // This would normally come from an API/Database
 const currentPlan = {
@@ -33,9 +35,15 @@ const plans = [
 ];
 
 export default function BillingPage() {
+    const { data: session } = useSession();
     const [loading, setLoading] = useState(false);
 
     const handlePayment = async (amount: number, planName: string) => {
+        if (!session?.user?.email) {
+            toast.error("User email not found. Please log in again.");
+            return;
+        }
+
         setLoading(true);
         try {
             const response = await fetch('/api/razorpay/order', {
@@ -50,8 +58,14 @@ export default function BillingPage() {
 
             const order = await response.json();
 
+            if (typeof (window as any).Razorpay === 'undefined') {
+                toast.error("Razorpay SDK failed to load. Please refresh the page.");
+                setLoading(false);
+                return;
+            }
+
             const options = {
-                key: "rzp_live_RsbFKZwt1ZtSQF", // Public Key ID
+                key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
                 amount: order.amount,
                 currency: order.currency,
                 name: "Shree Shyam Tech",
@@ -59,39 +73,54 @@ export default function BillingPage() {
                 order_id: order.id,
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 handler: async function (response: any) {
-                    const verifyRes = await fetch('/api/razorpay/verify', {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            razorpay_payment_id: response.razorpay_payment_id,
-                            razorpay_order_id: response.razorpay_order_id,
-                            razorpay_signature: response.razorpay_signature
-                        }),
-                        headers: { 'Content-Type': 'application/json' }
-                    });
+                    try {
+                        const verifyRes = await fetch('/api/razorpay/verify', {
+                            method: 'POST',
+                            body: JSON.stringify({
+                                razorpay_payment_id: response.razorpay_payment_id,
+                                razorpay_order_id: response.razorpay_order_id,
+                                razorpay_signature: response.razorpay_signature,
+                                email: session?.user?.email, // Added email
+                                plan: planName.toLowerCase() // Added plan
+                            }),
+                            headers: { 'Content-Type': 'application/json' }
+                        });
 
-                    const verifyData = await verifyRes.json();
-                    if (verifyData.success) {
-                        alert("Payment Successful! Subscription Active.");
-                    } else {
-                        alert("Payment Verification Failed.");
+                        const verifyData = await verifyRes.json();
+                        if (verifyRes.ok && verifyData.success) {
+                            toast.success("Payment Successful! Subscription Active.");
+                            window.location.reload();
+                        } else {
+                            toast.error(verifyData.error || "Payment Verification Failed.");
+                        }
+                    } catch (error) {
+                        console.error(error);
+                        toast.error("Verification error");
                     }
                 },
                 theme: {
-                    color: "#25D366"
+                    color: "#25D366" // WhatsApp Green
+                },
+                modal: {
+                    ondismiss: function () {
+                        setLoading(false);
+                    }
                 }
             };
 
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const rzp1 = new (window as any).Razorpay(options);
-            rzp1.open();
+
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             rzp1.on('payment.failed', function (response: any) {
-                alert("Payment Failed: " + response.error.description);
+                toast.error("Payment Failed: " + (response.error.description || "Unknown error"));
             });
+
+            rzp1.open();
 
         } catch (error) {
             console.error("Payment failed", error);
-            alert("Payment initialization failed. Please try again.");
+            toast.error("Payment initialization failed. Please try again.");
         } finally {
             setLoading(false);
         }

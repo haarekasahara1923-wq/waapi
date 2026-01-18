@@ -9,9 +9,11 @@ import { Wallet, AlertCircle, CheckCircle2, IndianRupee, CreditCard, Loader2 } f
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { RazorpayLoader } from "@/components/RazorpayLoader";
+import { useSession } from "next-auth/react";
 
 export default function WalletPage() {
     // Fetched from DB
+    const { data: session } = useSession();
     const [balance, setBalance] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
     const [customAmount, setCustomAmount] = useState("");
@@ -35,6 +37,11 @@ export default function WalletPage() {
     const handleRazorpayPayment = async (amount: number) => {
         if (!amount || amount <= 0) {
             toast.error("Please enter a valid amount");
+            return;
+        }
+
+        if (!session?.user?.email) {
+            toast.error("User email not found. Please log in again.");
             return;
         }
 
@@ -62,6 +69,12 @@ export default function WalletPage() {
                 return;
             }
 
+            if (typeof (window as any).Razorpay === 'undefined') {
+                toast.error("Razorpay SDK failed to load. Please refresh the page.");
+                setIsLoading(false);
+                return;
+            }
+
             const options = {
                 key: key,
                 amount: orderData.amount,
@@ -80,32 +93,47 @@ export default function WalletPage() {
                                 razorpay_payment_id: response.razorpay_payment_id,
                                 razorpay_signature: response.razorpay_signature,
                                 type: "wallet_recharge",
-                                amount: amount
+                                amount: amount,
+                                email: session.user?.email // Added email here
                             })
                         });
 
-                        if (verifyRes.ok) {
+                        const verifyData = await verifyRes.json();
+
+                        if (verifyRes.ok && verifyData.success) {
                             toast.success(`Succesfully added ₹${amount} to wallet!`);
                             setBalance(prev => prev + amount); // Optimistic update
                             setCustomAmount("");
                         } else {
-                            toast.error("Payment verification failed.");
+                            toast.error(verifyData.error || "Payment verification failed.");
                         }
                     } catch (error) {
+                        console.error("Verification error:", error);
                         toast.error("Verification error.");
                     }
                 },
                 prefill: {
-                    name: "User Name", // Should come from auth
-                    email: "user@example.com",
+                    name: session?.user?.name || "User Name",
+                    email: session?.user?.email || "user@example.com",
                     contact: ""
                 },
                 theme: {
                     color: "#10B981"
+                },
+                modal: {
+                    ondismiss: function () {
+                        setIsLoading(false);
+                    }
                 }
             };
 
             const rzp = new (window as any).Razorpay(options);
+
+            // Error handling for modal closure
+            rzp.on('payment.failed', function (response: any) {
+                toast.error(response.error.description || "Payment failed");
+            });
+
             rzp.open();
 
         } catch (error) {

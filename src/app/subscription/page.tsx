@@ -50,6 +50,12 @@ export default function SubscriptionPage() {
     const handlePayment = async () => {
         setIsLoading(true);
 
+        if (!session?.user?.email) {
+            toast.error("User email not found. Please log in again.");
+            setIsLoading(false);
+            return;
+        }
+
         const plan = PLANS.find(p => p.id === selectedPlan);
         if (!plan) return;
 
@@ -68,6 +74,12 @@ export default function SubscriptionPage() {
             const key = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
             if (!key) {
                 toast.error("Configuration Error: Payment Key Missing");
+                setIsLoading(false);
+                return;
+            }
+
+            if (typeof (window as any).Razorpay === 'undefined') {
+                toast.error("Razorpay SDK failed to load. Please refresh the page.");
                 setIsLoading(false);
                 return;
             }
@@ -113,10 +125,20 @@ export default function SubscriptionPage() {
                 },
                 theme: {
                     color: "#10B981"
+                },
+                modal: {
+                    ondismiss: function () {
+                        setIsLoading(false);
+                    }
                 }
             };
 
             const rzp = new (window as any).Razorpay(options);
+
+            rzp.on('payment.failed', function (response: any) {
+                toast.error(response.error.description || "Payment failed");
+            });
+
             rzp.open();
 
         } catch (error) {
